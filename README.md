@@ -132,6 +132,11 @@ Dalam kehidupan sehari-hari, OCR membantu:
 <div align="center">
 
 💗 *Dibuat dengan penuh cinta oleh* **Aqueena Regita Hapsari** 🌸  
-<em>"Let the camera read what the eyes see — beauty through code and light."</em>
+<em>"Let the camera read what the eyes see, beauty through code and light."</em>
 
 </div>
+
+---
+I would greatly appreciate it if you could share your thoughts or suggestions regarding my work.
+You can reach me at aqueenaregitahapsari@gmail.com
+I’d be happy to connect!
