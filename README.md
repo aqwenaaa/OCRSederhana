@@ -83,11 +83,11 @@ Setelah menyelesaikan praktikum ini, mahasiswa mampu:
 
 | No | Tampilan | Deskripsi |
 |:--:|:---------:|:----------|
-| 1 | ![Home Screen](images/1.png) | **Halaman Utama:** Tampilan pembuka dengan tema pink pastel dan tombol *Mulai Scan Teks*. Tombol ini akan mengarahkan pengguna menuju kamera untuk melakukan proses pemindaian teks. |
-| 2 | ![Scan Screen Panduan](images/2.png) | **Panduan Pemindaian:** Tampilan kamera dengan instruksi posisi teks agar hasil pemindaian lebih akurat. Pengguna diarahkan untuk menyesuaikan teks di dalam area bidik kamera. |
-| 3 | ![Proses Scan](images/3.png) | **Proses Pengenalan Teks:** Saat tombol *Ambil Foto & Scan* ditekan, sistem menampilkan indikator loading sebagai tanda proses OCR sedang berjalan. |
-| 4 | ![Hasil OCR Berhasil](images/4.png) | **Hasil Pembacaan Teks:** Jika gambar jelas dan teks dapat dikenali, hasil OCR akan ditampilkan di halaman hasil. Pengguna dapat melihat dan menyalin teks tersebut. |
-| 5 | ![Hasil Dapat Dicopy](images/5.png) | **Fitur Salin Teks:** Menunjukkan keberhasilan pengguna dalam menyalin hasil teks dari OCR. Fitur ini mempermudah penggunaan hasil pemindaian ke aplikasi lain. |
+| 1 | ![Home Screen](images/1.jpeg) | **Halaman Utama:** Tampilan pembuka dengan tema pink pastel dan tombol *Mulai Scan Teks*. Tombol ini akan mengarahkan pengguna menuju kamera untuk melakukan proses pemindaian teks.
+| 2 | ![Scan Screen Panduan](images/2.jpeg) | **Panduan Pemindaian:** Tampilan kamera dengan instruksi posisi teks agar hasil pemindaian lebih akurat. Pengguna diarahkan untuk menyesuaikan teks di dalam area bidik kamera. |
+| 3 | ![Proses Scan](images/3.jpeg) | **Proses Pengenalan Teks:** Saat tombol *Ambil Foto & Scan* ditekan, sistem menampilkan indikator loading sebagai tanda proses OCR sedang berjalan. |
+| 4 | ![Hasil OCR Berhasil](images/4.jpeg) | **Hasil Pembacaan Teks:** Jika gambar jelas dan teks dapat dikenali, hasil OCR akan ditampilkan di halaman hasil. Pengguna dapat melihat dan menyalin teks tersebut. |
+| 5 | ![Hasil Dapat Dicopy](images/5.jpeg) | **Fitur Salin Teks:** Menunjukkan keberhasilan pengguna dalam menyalin hasil teks dari OCR. Fitur ini mempermudah penggunaan hasil pemindaian ke aplikasi lain. |
 | 6 | ![Hasil Buram](images/6.png) | **Gagal Membaca Teks:** Jika gambar buram atau teks tidak terbaca, aplikasi akan menampilkan pesan *“Tidak ada teks ditemukan.”* sebagai notifikasi. |
 
 ---
