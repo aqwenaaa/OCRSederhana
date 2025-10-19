@@ -7,6 +7,7 @@ plugins {
 
 android {
     namespace = "com.example.ocr_sederhana"
+     
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 
