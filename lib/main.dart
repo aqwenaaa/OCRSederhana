@@ -18,3 +18,4 @@ class MyApp extends StatelessWidget {
     );
   }
 }
+//UTS: Basis awal proyek OCR Sederhana
