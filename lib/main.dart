@@ -11,7 +11,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build (BuildContext context) {
     return MaterialApp (
-      title : 'OCR Sederhana',
+      title : 'OCR Sederhana UTS',
       theme : ThemeData (primarySwatch: Colors.blue),
       home : const SplashScreen (),
       debugShowCheckedModeBanner : false,
