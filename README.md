@@ -283,13 +283,14 @@ Dalam kehidupan sehari-hari, OCR membantu:
   - Jika menggunakan Dart terbaru dan melihat peringatan `withOpacity` deprecated, bisa ganti ke `withValues(alpha: ...)` (opsional, tidak memengaruhi fitur UTS).
 
 ---
-## 🎥 Demo Aplikasi
+## 🎥 Demo Interaktif Aplikasi OCR UTS 🌷
 
 <div align="center">
-  <video src="images/tts.mp4" width="450" controls autoplay loop muted>
-    Browser kamu tidak mendukung pemutaran video.
-  </video>
-  <p><em>✨ Demo interaktif aplikasi OCR Sederhana dengan Flutter.</em></p>
+  <a href="https://youtube.com/shorts/NmFNRN71O0E?feature=share" target="_blank">
+    <img src="https://img.shields.io/badge/Tonton%20Demo%20di%20YouTube-ffb6c1?style=for-the-badge&logo=youtube&logoColor=white" alt="YouTube Demo Badge"><br><br>
+    <img src="https://img.youtube.com/vi/NmFNRN71O0E/hqdefault.jpg" width="480" style="border-radius: 15px; box-shadow: 0 0 10px rgba(255,182,193,0.6);"/>
+  </a>
+  <p><em>✨ Klik gambar untuk menonton video demo aplikasi OCR Flutter 💗</em></p>
 </div>
 
 ---
