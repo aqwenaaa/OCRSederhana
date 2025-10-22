@@ -4,7 +4,7 @@ import 'package:camera/camera.dart';
 import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart';
 import 'result_screen.dart';
 
-class ScanScreen extends StatefulWidget { //FIXING CAMERA BUGS
+class ScanScreen extends StatefulWidget {
   const ScanScreen({super.key});
 
   @override
@@ -49,8 +49,6 @@ class _ScanScreenState extends State<ScanScreen> with WidgetsBindingObserver {
     if (state == AppLifecycleState.inactive || state == AppLifecycleState.paused) {
       await c.dispose();
     } else if (state == AppLifecycleState.resumed) {
-      // Panggil _initCamera tanpa await agar tidak memblokir UI
-      // dan tambahkan null check
       if (_controller == null || !_controller!.value.isInitialized) {
         _initCamera(reuseIndex: 0);
       }
@@ -95,8 +93,14 @@ class _ScanScreenState extends State<ScanScreen> with WidgetsBindingObserver {
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Gagal inisialisasi kamera: $e'),
+        const SnackBar(
+          content: Row(
+            children: [
+              Icon(Icons.error, color: Colors.yellow),
+              SizedBox(width: 8),
+              Text('Pemindaian Gagal! Periksa Izin Kamera atau coba lagi.', style: TextStyle(color: Colors.white)),
+            ],
+          ),
           backgroundColor: Colors.redAccent,
         ),
       );
@@ -116,7 +120,7 @@ class _ScanScreenState extends State<ScanScreen> with WidgetsBindingObserver {
     try {
       await _initializeControllerFuture;
 
-      // Ubah SnackBar menjadi tema girly
+      // SnackBar progres (biarkan tetap versi kamu)
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -135,7 +139,6 @@ class _ScanScreenState extends State<ScanScreen> with WidgetsBindingObserver {
         );
       }
 
-      // Pause preview saat memproses (lebih stabil di beberapa vendor)
       await c.pausePreview();
 
       final XFile shot = await c.takePicture();
@@ -147,13 +150,12 @@ class _ScanScreenState extends State<ScanScreen> with WidgetsBindingObserver {
         MaterialPageRoute(builder: (_) => ResultScreen(ocrText: ocrText)),
       );
 
-      // Lanjutkan preview setelah kembali
       if (mounted && _controller != null && _controller!.value.isInitialized) {
         await _controller!.resumePreview();
       }
     } catch (_) {
       if (!mounted) return;
-      // PESAN SESUAI SOAL 2: tanpa detail error, menggunakan tema girly
+      // Soal 2.2: Pesan error fixed tanpa $e (pakai template dosen)
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Row(
@@ -173,29 +175,19 @@ class _ScanScreenState extends State<ScanScreen> with WidgetsBindingObserver {
   Widget build(BuildContext context) {
     final c = _controller;
 
-    // CUSTOM LOADING SCREEN (Disesuaikan dengan tema girly)
+    // Soal 2.1: Loading sesuai template dosen (tanpa AppBar & tanpa teks tambahan)
     if (c == null || !c.value.isInitialized) {
       return Scaffold(
-        backgroundColor: darkPink.withOpacity(0.9), // Latar belakang loading pink gelap
-        appBar: AppBar(
-          title: const Text('Kamera OCR', style: TextStyle(color: Colors.white)),
-          backgroundColor: darkPink,
-          elevation: 6.0,
-        ),
-        body: Center(
+        backgroundColor: Colors.grey[900],
+        body: const Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const CircularProgressIndicator(color: primaryPink), // Warna loading pink muda
-              const SizedBox(height: 20),
-              const Text(
-                'Memuat Kamera Ajaib... Harap tunggu.',
-                style: TextStyle(color: softWhite, fontSize: 18, fontWeight: FontWeight.w600),
-              ),
-              const SizedBox(height: 5),
+              CircularProgressIndicator(color: Colors.yellow),
+              SizedBox(height: 20),
               Text(
-                'Pastikan izin kamera sudah diberikan.',
-                style: TextStyle(color: softWhite.withOpacity(0.7), fontSize: 14),
+                'Memuat Kamera... Harap tunggu.',
+                style: TextStyle(color: Colors.white, fontSize: 18),
               ),
             ],
           ),
@@ -203,9 +195,9 @@ class _ScanScreenState extends State<ScanScreen> with WidgetsBindingObserver {
       );
     }
 
-    // TAMPILAN KAMERA UTAMA (Disesuaikan dengan tema girly)
+    // TAMPILAN KAMERA UTAMA (punyamu tetap)
     final size = MediaQuery.of(context).size;
-    
+
     return Scaffold(
       backgroundColor: softWhite, // Latar belakang utama
       appBar: AppBar(
@@ -226,7 +218,7 @@ class _ScanScreenState extends State<ScanScreen> with WidgetsBindingObserver {
             child: CameraPreview(c),
           ),
 
-          // 2. Overlay Bingkai Fokus Lucu (dari desain sebelumnya)
+          // 2. Overlay Bingkai Fokus Lucu (punyamu tetap)
           Positioned.fill(
             child: Center(
               child: Container(
@@ -258,10 +250,10 @@ class _ScanScreenState extends State<ScanScreen> with WidgetsBindingObserver {
               ),
             ),
           ),
-          
         ],
       ),
-      // Tombol Aksi Utama diubah dari ElevatedButton menjadi FloatingActionButton
+
+      // Tombol scan (punyamu tetap)
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
       floatingActionButton: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16.0),
@@ -277,11 +269,10 @@ class _ScanScreenState extends State<ScanScreen> with WidgetsBindingObserver {
           elevation: 10,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(30),
-            side: const BorderSide(color: primaryPink, width: 3), // Border pink muda
+            side: const BorderSide(color: primaryPink, width: 3),
           ),
         ),
       ),
-      // Hapus bagian padding dan ElevatedButton yang lama dari body
     );
   }
 }
