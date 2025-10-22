@@ -282,7 +282,15 @@ Dalam kehidupan sehari-hari, OCR membantu:
   - Pada beberapa perangkat (Oppo/realme), nonaktifkan **battery optimization** untuk aplikasi agar kamera tidak dihentikan sistem.  
   - Jika menggunakan Dart terbaru dan melihat peringatan `withOpacity` deprecated, bisa ganti ke `withValues(alpha: ...)` (opsional, tidak memengaruhi fitur UTS).
 
+---
+## 🎥 Demo Aplikasi
 
+<div align="center">
+  <video src="images/tts.mp4" width="450" controls autoplay loop muted>
+    Browser kamu tidak mendukung pemutaran video.
+  </video>
+  <p><em>✨ Demo interaktif aplikasi OCR Sederhana dengan Flutter.</em></p>
+</div>
 
 ---
 
