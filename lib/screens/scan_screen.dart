@@ -2,102 +2,167 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:camera/camera.dart';
 import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart';
-// import 'package:path/path.dart' as path;
-// import 'package:path_provider/path_provider.dart';
 import 'result_screen.dart';
 
-// Variabel global untuk daftar kamera harus tetap di sini
-late List<CameraDescription> cameras;
-
-class ScanScreen extends StatefulWidget {
+class ScanScreen extends StatefulWidget { //FIXING CAMERA BUGS
   const ScanScreen({super.key});
 
   @override
   State<ScanScreen> createState() => _ScanScreenState();
 }
 
-class _ScanScreenState extends State<ScanScreen> {
-  CameraController? _controller;
-  late Future<void> _initializeControllerFuture;
-
-  // Tema warna pink-ish girly
+class _ScanScreenState extends State<ScanScreen> with WidgetsBindingObserver {
+  // Tema warna pink-ish girly, diambil dari HomeScreen
   static const Color darkPink = Color(0xFFE91E63); // Deeper Pink for accents
   static const Color primaryPink = Color(0xFFF8BBD0); // Light Pink
   static const Color softWhite = Color(0xFFFFF8F9); // Off-white
 
+  List<CameraDescription> _cameras = const [];
+  CameraController? _controller;
+  Future<void>? _initializeControllerFuture;
+
+  // Reuse satu instance OCR agar tidak lambat
+  late final TextRecognizer _textRecognizer;
+
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    _textRecognizer = TextRecognizer(script: TextRecognitionScript.latin);
     _initCamera();
-  }
-
-  void _initCamera() async {
-    // Pastikan cameras sudah diinisialisasi sebelum digunakan
-    if (cameras.isEmpty) {
-        cameras = await availableCameras();
-    }
-    
-    _controller = CameraController(cameras[0], ResolutionPreset.medium);
-    _initializeControllerFuture = _controller!.initialize();
-    if (mounted) {
-      setState(() {});
-    }
   }
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     _controller?.dispose();
+    _textRecognizer.close();
     super.dispose();
   }
 
-  Future<String> _ocrFromFile(File imageFile) async {
-    final inputImage = InputImage.fromFile(imageFile);
-    final textRecognizer = TextRecognizer(script: TextRecognitionScript.latin);
-    final RecognizedText recognizedText = await textRecognizer.processImage(inputImage);
-    textRecognizer.close();
-    return recognizedText.text;
+  // Pastikan kamera di-reinit saat app resume
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) async {
+    final c = _controller;
+    if (c == null) return;
+
+    if (state == AppLifecycleState.inactive || state == AppLifecycleState.paused) {
+      await c.dispose();
+    } else if (state == AppLifecycleState.resumed) {
+      // Panggil _initCamera tanpa await agar tidak memblokir UI
+      // dan tambahkan null check
+      if (_controller == null || !_controller!.value.isInitialized) {
+        _initCamera(reuseIndex: 0);
+      }
+    }
   }
 
-  Future<void> _takePicture() async {
+  Future<void> _initCamera({int? reuseIndex}) async {
     try {
-      await _initializeControllerFuture;
-
+      _cameras = await availableCameras();
       if (!mounted) return;
-      
-      // Tampilkan SnackBar yang lebih cantik
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Row(
-            children: const [
-              Icon(Icons.auto_fix_high, color: primaryPink),
-              SizedBox(width: 8),
-              Text('Memproses teks ajaib, sebentar ya...', style: TextStyle(color: softWhite)),
-            ],
+
+      if (_cameras.isEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Row(
+              children: const [
+                Icon(Icons.camera_alt_outlined, color: Colors.yellow),
+                SizedBox(width: 8),
+                Text('Kamera tidak ditemukan di perangkat.', style: TextStyle(color: Colors.white)),
+              ],
+            ),
+            backgroundColor: darkPink,
           ),
-          backgroundColor: darkPink.withOpacity(0.9),
-          duration: const Duration(seconds: 2),
-          behavior: SnackBarBehavior.floating, // Tampilan mengambang
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-        ),
+        );
+        return;
+      }
+
+      final index = (reuseIndex != null && reuseIndex < _cameras.length) ? reuseIndex : 0;
+      final desc = _cameras[index];
+
+      final controller = CameraController(
+        desc,
+        ResolutionPreset.medium, // bisa turunkan ke .low jika ingin lebih cepat
+        enableAudio: false,
+        imageFormatGroup: ImageFormatGroup.yuv420, // stabil di banyak device
       );
 
-      // Ambil foto
-      final XFile image = await _controller!.takePicture();
-
-      // Proses OCR
-      final ocrText = await _ocrFromFile(File(image.path));
-
-      if (!mounted) return;
-      // Pindah ke ResultScreen
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (_) => ResultScreen(ocrText: ocrText)),
-      );
+      _controller = controller;
+      _initializeControllerFuture = controller.initialize();
+      await _initializeControllerFuture;
+      if (mounted) setState(() {});
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Oops! Ada error saat memproses: $e', style: const TextStyle(color: Colors.white)),
+          content: Text('Gagal inisialisasi kamera: $e'),
+          backgroundColor: Colors.redAccent,
+        ),
+      );
+    }
+  }
+
+  Future<String> _ocrFromFile(File imageFile) async {
+    final inputImage = InputImage.fromFile(imageFile);
+    final recognized = await _textRecognizer.processImage(inputImage);
+    return recognized.text;
+  }
+
+  Future<void> _takePictureAndScan() async {
+    final c = _controller;
+    if (c == null) return;
+
+    try {
+      await _initializeControllerFuture;
+
+      // Ubah SnackBar menjadi tema girly
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Row(
+              children: const [
+                Icon(Icons.auto_fix_high, color: primaryPink),
+                SizedBox(width: 8),
+                Text('Memproses teks ajaib, sebentar ya...', style: TextStyle(color: softWhite)),
+              ],
+            ),
+            backgroundColor: darkPink.withOpacity(0.9),
+            duration: const Duration(seconds: 2),
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+          ),
+        );
+      }
+
+      // Pause preview saat memproses (lebih stabil di beberapa vendor)
+      await c.pausePreview();
+
+      final XFile shot = await c.takePicture();
+      final String ocrText = await _ocrFromFile(File(shot.path));
+
+      if (!mounted) return;
+      await Navigator.push(
+        context,
+        MaterialPageRoute(builder: (_) => ResultScreen(ocrText: ocrText)),
+      );
+
+      // Lanjutkan preview setelah kembali
+      if (mounted && _controller != null && _controller!.value.isInitialized) {
+        await _controller!.resumePreview();
+      }
+    } catch (_) {
+      if (!mounted) return;
+      // PESAN SESUAI SOAL 2: tanpa detail error, menggunakan tema girly
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Row(
+            children: [
+              Icon(Icons.error, color: Colors.yellow),
+              SizedBox(width: 8),
+              Text('Pemindaian Gagal! Periksa Izin Kamera atau coba lagi.', style: TextStyle(color: Colors.white)),
+            ],
+          ),
           backgroundColor: Colors.redAccent,
         ),
       );
@@ -106,20 +171,39 @@ class _ScanScreenState extends State<ScanScreen> {
 
   @override
   Widget build(BuildContext context) {
-    if (_controller == null || !_controller!.value.isInitialized) {
+    final c = _controller;
+
+    // CUSTOM LOADING SCREEN (Disesuaikan dengan tema girly)
+    if (c == null || !c.value.isInitialized) {
       return Scaffold(
-        backgroundColor: softWhite,
+        backgroundColor: darkPink.withOpacity(0.9), // Latar belakang loading pink gelap
         appBar: AppBar(
           title: const Text('Kamera OCR', style: TextStyle(color: Colors.white)),
           backgroundColor: darkPink,
+          elevation: 6.0,
         ),
-        body: const Center(
-          child: CircularProgressIndicator(color: darkPink),
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const CircularProgressIndicator(color: primaryPink), // Warna loading pink muda
+              const SizedBox(height: 20),
+              const Text(
+                'Memuat Kamera Ajaib... Harap tunggu.',
+                style: TextStyle(color: softWhite, fontSize: 18, fontWeight: FontWeight.w600),
+              ),
+              const SizedBox(height: 5),
+              Text(
+                'Pastikan izin kamera sudah diberikan.',
+                style: TextStyle(color: softWhite.withOpacity(0.7), fontSize: 14),
+              ),
+            ],
+          ),
         ),
       );
     }
 
-    // Hitung ukuran layar untuk penempatan tombol yang responsif
+    // TAMPILAN KAMERA UTAMA (Disesuaikan dengan tema girly)
     final size = MediaQuery.of(context).size;
     
     return Scaffold(
@@ -135,14 +219,14 @@ class _ScanScreenState extends State<ScanScreen> {
       body: Stack(
         alignment: Alignment.center,
         children: [
-          // 1. Pratinjau Kamera (diperluas)
+          // 1. Pratinjau Kamera
           SizedBox(
             width: size.width,
             height: size.height,
-            child: CameraPreview(_controller!),
+            child: CameraPreview(c),
           ),
 
-          // 2. Overlay Bingkai Fokus Lucu (Opsional, untuk kesan girly)
+          // 2. Overlay Bingkai Fokus Lucu (dari desain sebelumnya)
           Positioned.fill(
             child: Center(
               child: Container(
@@ -151,7 +235,6 @@ class _ScanScreenState extends State<ScanScreen> {
                 decoration: BoxDecoration(
                   border: Border.all(color: primaryPink, width: 3.0),
                   borderRadius: BorderRadius.circular(15.0),
-                  // Tambahkan bayangan lembut
                   boxShadow: [
                     BoxShadow(
                       color: darkPink.withOpacity(0.3),
@@ -178,13 +261,12 @@ class _ScanScreenState extends State<ScanScreen> {
           
         ],
       ),
-      // Tombol Aksi Utama menggunakan FloatingActionButton
+      // Tombol Aksi Utama diubah dari ElevatedButton menjadi FloatingActionButton
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
       floatingActionButton: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16.0),
-        // Menggunakan tombol yang lebih besar dan menarik
         child: FloatingActionButton.extended(
-          onPressed: _takePicture,
+          onPressed: _takePictureAndScan,
           icon: const Icon(Icons.camera_alt, size: 28),
           label: const Text(
             'Ambil Foto & Scan',
@@ -199,6 +281,7 @@ class _ScanScreenState extends State<ScanScreen> {
           ),
         ),
       ),
+      // Hapus bagian padding dan ElevatedButton yang lama dari body
     );
   }
 }

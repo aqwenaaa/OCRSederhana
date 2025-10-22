@@ -11,11 +11,10 @@ class MyApp extends StatelessWidget {
   @override
   Widget build (BuildContext context) {
     return MaterialApp (
-      title : 'OCR Sederhana Made By Aqueena',
-      theme : ThemeData (primarySwatch: Colors.blue),
+      title : 'OCR Sederhana',
+      theme : ThemeData (primarySwatch: Colors.pink), //Hanya ubah tema warna menjadi pink (kebutuhan fixing ui saja)
       home : const SplashScreen (),
       debugShowCheckedModeBanner : false,
     );
   }
 }
-//UTS: Basis awal proyek OCR Sederhana

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart'; // Perlu untuk fitur copy
+import 'home_screen.dart'; // <-- diperlukan untuk navigasi balik ke Home
 
 class ResultScreen extends StatelessWidget {
   final String ocrText;
@@ -22,7 +23,7 @@ class ResultScreen extends StatelessWidget {
             Text('Teks ajaib berhasil disalin!', style: TextStyle(color: softWhite)),
           ],
         ),
-        backgroundColor: darkPink.withOpacity(0.9),
+        backgroundColor: darkPink, // tetap sesuai UI (tidak diubah)
         duration: const Duration(seconds: 1),
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
@@ -32,28 +33,25 @@ class ResultScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Teks yang akan ditampilkan (menggunakan logika asli)
-    final displayText = ocrText.isEmpty
-        ? 'Tidak ada teks ditemukan.'
-        : ocrText.replaceAll('\n', ' ');
+    // (a) Soal 1.2: tampilkan teks UTUH (tanpa replaceAll)
+    final displayText = ocrText.isEmpty ? 'Tidak ada teks ditemukan.' : ocrText;
 
     return Scaffold(
       backgroundColor: softWhite, // Latar belakang utama
       appBar: AppBar(
         title: const Text(
           'Hasil Teks Ajaib ✨',
-          style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
+        style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
         ),
         backgroundColor: darkPink,
         elevation: 6.0,
         actions: [
-          // Tombol Salin Teks yang dipercantik
+          // Tombol Salin Teks (UI tetap)
           if (ocrText.isNotEmpty)
             IconButton(
               icon: const Icon(Icons.copy, color: primaryPink),
               tooltip: 'Salin Teks',
               onPressed: () {
-                // Salin teks ke clipboard
                 Clipboard.setData(ClipboardData(text: ocrText));
                 _showCopySnackbar(context);
               },
@@ -76,7 +74,7 @@ class ResultScreen extends StatelessWidget {
               ),
             ),
             const Divider(color: primaryPink, thickness: 2, height: 20),
-            
+
             // Area Teks Hasil
             Expanded(
               child: Container(
@@ -100,23 +98,23 @@ class ResultScreen extends StatelessWidget {
                     style: TextStyle(
                       fontSize: 18,
                       color: Colors.grey[800],
-                      height: 1.5, // Spasi baris agar lebih mudah dibaca
+                      height: 1.5,
                     ),
                   ),
                 ),
               ),
             ),
             const SizedBox(height: 16),
-            
-            // Info dan Tombol Kembali
+
+            // Info dan Tombol Kembali (UI asli dipertahankan)
             Center(
               child: ElevatedButton.icon(
                 onPressed: () => Navigator.pop(context),
                 icon: const Icon(Icons.arrow_back, size: 20),
                 label: const Text('Kembali & Scan Lagi'),
                 style: ElevatedButton.styleFrom(
-                  foregroundColor: Colors.white, 
-                  backgroundColor: primaryPink, // Tombol kembali warna pink muda
+                  foregroundColor: Colors.white,
+                  backgroundColor: primaryPink,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(10),
                   ),
@@ -126,6 +124,19 @@ class ResultScreen extends StatelessWidget {
             ),
           ],
         ),
+      ),
+
+      // (b)(c) Soal 1.2: FAB Home -> pushAndRemoveUntil ke HomeScreen
+      floatingActionButton: FloatingActionButton(
+        backgroundColor: darkPink,
+        child: const Icon(Icons.home),
+        onPressed: () {
+          Navigator.pushAndRemoveUntil(
+            context,
+            MaterialPageRoute(builder: (_) => const HomeScreen()),
+            (route) => false, // hapus semua halaman di atasnya
+          );
+        },
       ),
     );
   }

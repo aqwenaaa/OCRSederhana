@@ -83,30 +83,42 @@ class HomeScreen extends StatelessWidget {
                         ),
                 const SizedBox(height: 20),
 
-                ElevatedButton.icon(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (_) => const ScanScreen()),
-                    );
-                  },
-                  icon: const Icon(Icons.camera_alt, size: 30),
-                  label: const Padding(
-                    padding: EdgeInsets.symmetric(vertical: 15.0),
-                    child: Text(
-                      'Mulai Petualangan Scan!',
-                      style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                    ),
+                // START: MODIFIKASI SESUAI SOAL 1 (Mengganti ElevatedButton menjadi ListTile)
+                // ListTile dibungkus dalam Card agar lebih menonjol dan serasi dengan desain modern.
+                Card(
+                  elevation: 8,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20),
+                    side: const BorderSide(color: darkPink, width: 2),
                   ),
-                  style: ElevatedButton.styleFrom(
-                    foregroundColor: Colors.white, backgroundColor: darkPink,
+                  child: ListTile(
+                    // b) Atur ListTile: leading: Icon(Icons.camera_alt, color: Colors.blue);
+                    leading: const Icon(Icons.camera_alt, color: Colors.blue, size: 30),
+                    
+                    // b) Atur ListTile: title: Text(’Mulai Pindai Teks Baru’)
+                    title: const Text(
+                      'Mulai Pindai Teks Baru',
+                      style: TextStyle(
+                        fontSize: 20, 
+                        fontWeight: FontWeight.bold,
+                        color: darkPink, // Menggunakan warna tema pink untuk judul
+                      ),
+                    ),
+                    
+                    // c) Fungsi onTap harus menggunakan Navigator.push() untuk ke ScanScreen.
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => const ScanScreen()),
+                      );
+                    },
+                    contentPadding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 20.0),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(20),
                     ),
-                    elevation: 8,
-                    padding: const EdgeInsets.symmetric(horizontal: 25),
                   ),
                 ),
+                // END: MODIFIKASI SESUAI SOAL 1
                 
                 const SizedBox(height: 100), // Jarak ke copyright
                 
